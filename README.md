@@ -14,3 +14,13 @@ La presentación del cliente se puede revisar en el siguiente [enalce](https://a
 
 ## WIKI
 Puede acceder a la wiki desde el siguiente enlace [enlace](https://github.com/sebadaba/GRUPO03-2025-PROYINF/wiki)
+
+## Instrucciones
+### Dependencias
+Para levantar este projecto se necesita:
+- NodeJS
+
+### Ejecución
+- 1) Clonar el repositorio y navegar a la carpeta src/ a través de un terminal.
+- 2) Ejecutar 'npm install' para descargar los paquetes necesarios.
+- 3) Ejecutar 'npm run dev' para levantar la página de manera local en http://localhost:5173/ .
