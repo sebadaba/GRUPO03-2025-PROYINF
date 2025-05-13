@@ -1,8 +1,14 @@
 <template>
   <div>
-    <div class="pregunta">
-      <h2>Enunciado {{ indice + 1 }}</h2>
-
+    <h2>Pregunta {{ indice + 1 }}</h2>
+    <div class="enunciado">
+      <p>
+        Enunciado {{ indice + 1 }} - Lorem ipsum dolor sit amet, consectetur
+        adipiscing elit. Ut nec velit sit amet turpis varius hendrerit. Morbi
+        sit amet dignissim dolor. Sed aliquet eget lectus et bibendum.
+      </p>
+    </div>
+    <div class="alternativas">
       <div v-for="alternativa in 4" :key="alternativa" class="alternativa">
         <label>
           <input
@@ -37,11 +43,19 @@ defineEmits(["siguiente", "anterior", "terminar"]);
 </script>
 
 <style scoped>
-.pregunta {
+.enunciado {
   margin-bottom: 2rem;
   padding: 1rem;
   background: #f9f9f9;
   border-radius: 6px;
+  text-align: left;
+}
+.alternativas {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: 6px;
+  text-align: left;
 }
 .alternativa {
   margin: 0.5rem 0;
