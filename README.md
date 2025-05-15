@@ -36,6 +36,7 @@ Para levantar este projecto se necesita:
 
 - Xampp (PHP)
 - Composer
+- PostgreSQL y pgAdmin 4
 - NodeJS
 
 ### Ejecución
