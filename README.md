@@ -22,7 +22,8 @@ Puede acceder a la wiki desde el siguiente enlace [enlace](https://github.com/se
 
 1. Instalar Xampp y agregar path de PHP
 2. Instalar Composer
-3. Dentro de la carpeta "backend" utilizar el siguiente comando en git bash:
+3. Instalar PostgreSQL
+4. Dentro de la carpeta "backend" utilizar el siguiente comando en git bash:
 
    - composer create-project laravel/laravel . --prefer-dist
 
