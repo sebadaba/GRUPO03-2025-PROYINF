@@ -1,13 +1,10 @@
 {
   pkgs,
-  lib,
-  config,
-  inputs,
   ...
 }:
 
 {
-  packages = [ ];
+  packages = with pkgs; [ openssl ];
 
   dotenv.disableHint = true;
 
