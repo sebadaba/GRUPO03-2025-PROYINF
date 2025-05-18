@@ -1,6 +1,9 @@
 <template>
   <div class="container">
-    <h1>Ensayo PAES</h1>
+    <div class="header">
+      <h1>Ensayo PAES: {{ subjectName }}</h1>
+      <button @click="volverAlMenu" class="back-btn">Volver al menú</button>
+    </div>
 
     <div v-if="!mostrarResumen">
       <div class="pregunta">
@@ -60,20 +63,46 @@
         </li>
       </ul>
 
-      <button @click="reiniciarEnsayo">
-        Hacer de nuevo el ensayo
-      </button>
+      <div class="buttons-container">
+        <button @click="reiniciarEnsayo">
+          Hacer de nuevo el ensayo
+        </button>
+        <button @click="volverAlMenu" class="secondary-btn">
+          Volver al menú principal
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const totalPreguntas = 3
 const indicePregunta = ref(0)
 const respuestas = ref(Array(totalPreguntas).fill(null))
 const mostrarResumen = ref(false)
+const subjectName = ref('');
+
+onMounted(() => {
+  const user = localStorage.getItem('user');
+  if (!user) {
+    router.push('/');
+    return;
+  }
+  
+  // Obtener la asignatura seleccionada
+  const selectedSubject = localStorage.getItem('selectedSubject');
+  if (!selectedSubject) {
+    router.push('/home');
+    return;
+  }
+  
+  // Establecer el nombre de la asignatura
+  subjectName.value = JSON.parse(selectedSubject).name;
+});
 
 const siguientePregunta = () => {
   if (indicePregunta.value < totalPreguntas - 1) {
@@ -100,6 +129,10 @@ const reiniciarEnsayo = () => {
   indicePregunta.value = 0
   mostrarResumen.value = false
 }
+
+const volverAlMenu = () => {
+  router.push('/home');
+}
 </script>
 
 <style scoped>
@@ -117,7 +150,27 @@ const reiniciarEnsayo = () => {
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
+}
+
+.header {
+  display: flex;
   justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.back-btn {
+  background-color: #95a5a6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.back-btn:hover {
+  background-color: #7f8c8d;
 }
 
 .pregunta {
@@ -165,5 +218,20 @@ button:disabled {
   font-size: 1.2rem;
   font-weight: bold;
   margin-bottom: 1rem;
+}
+
+.buttons-container {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.secondary-btn {
+  background-color: #95a5a6;
+}
+
+.secondary-btn:hover {
+  background-color: #7f8c8d;
 }
 </style>
