@@ -45,3 +45,7 @@ Para levantar este projecto se necesita:
 - 1. Clonar el repositorio y navegar a la carpeta src/ a través de un terminal.
 - 2. Ejecutar 'npm install' para descargar los paquetes necesarios.
 - 3. Ejecutar 'npm run dev' para levantar la página de manera local en http://localhost:5173/ .
+
+---
+## Video demostracion:
+[CLICK AQUI](https://youtu.be/wvhAV7mzIEo)
