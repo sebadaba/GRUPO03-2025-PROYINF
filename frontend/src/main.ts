@@ -1,6 +1,4 @@
-import * as Vue from 'vue'
-const { createApp } = Vue
-
+import { createApp } from 'vue'
 import './style.css'
 import AppMain from './AppMain.vue'
 import router from './router'
