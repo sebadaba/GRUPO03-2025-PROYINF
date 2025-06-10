@@ -1,0 +1,57 @@
+version: "3"
+services:
+  # Backend services
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: backend-app
+    container_name: backend-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+    networks:
+      - app-network
+    ports:
+      - "8000:8000"
+
+  db:
+    image: postgres:15-alpine
+    container_name: backend-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: paes_sip
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: user
+      SERVICE_TAGS: dev
+      SERVICE_NAME: postgres
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+      - ./backend/database/querys/tablas.sql:/docker-entrypoint-initdb.d/tablas.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+  # Frontend services
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend-app
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  dbdata:
