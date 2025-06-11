@@ -28,7 +28,9 @@ const routes: Array<RouteRecordRaw> = [
         name: 'ensayo',
         component: EnsayoView,
         meta: {requireAuth: true, role: 'student'}
-    }
+
+    },
+
 ];
 const router = createRouter({
     history: createWebHashHistory(),

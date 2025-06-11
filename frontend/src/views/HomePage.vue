@@ -232,4 +232,40 @@ main {
   color: #666;
   font-size: 0.9rem;
 }
+
+@media (max-width: 700px) {
+  .main-header {
+    padding: 1rem 0.5rem;
+  }
+  .header-content {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0 0.5rem;
+  }
+  main {
+    padding: 1rem 0.5rem;
+  }
+  .subjects-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .subject-card {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .main-header {
+    font-size: 0.95em;
+  }
+  .welcome-section h2 {
+    font-size: 1.1em;
+  }
+  .subject-card h3 {
+    font-size: 1em;
+  }
+  .subject-card p {
+    font-size: 0.85em;
+  }
+}
 </style>
