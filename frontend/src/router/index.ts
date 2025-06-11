@@ -1,9 +1,9 @@
 import {createRouter, createWebHashHistory} from 'vue-router'
 import type {RouteRecordRaw} from 'vue-router'
 import LoginView from '../views/LoginView.vue'
-import App from '../App.vue'
 import HomePage from '../views/HomePage.vue'
 import TeacherDashboard from '../views/TeacherDashboard.vue'
+import EnsayoView from '../views/EnsayoView.vue'
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -26,7 +26,7 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/ensayo',
         name: 'ensayo',
-        component: App,
+        component: EnsayoView,
         meta: {requireAuth: true, role: 'student'}
     }
 ];
