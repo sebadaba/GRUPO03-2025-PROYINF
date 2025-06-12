@@ -99,7 +99,7 @@ const selectSubject = (subject) => {
 
 // Función para ver estadísticas
 const goToStats = () => {
-  router.push('/stats');
+  router.push('/dashboard');
 };
 
 // Función para cerrar sesión

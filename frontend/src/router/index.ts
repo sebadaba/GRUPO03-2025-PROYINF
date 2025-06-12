@@ -5,7 +5,7 @@ import HomePage from '../views/HomePage.vue'
 import TeacherDashboard from '../views/TeacherDashboard.vue'
 import EnsayoView from '../views/EnsayoView.vue'
 import CreateExam from '../views/CreateExam.vue'
-import Stats from '../views/Stats.vue'
+import Dashboard from '../views/Dashboard.vue'
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -38,9 +38,9 @@ const routes: Array<RouteRecordRaw> = [
         component: CreateExam,
     },
     {
-        path: '/stats',
-        name: 'stats',
-        component: Stats,
+        path: '/dashboard',
+        name: 'dashboard',
+        component: Dashboard,
         
     }
 
