@@ -5,6 +5,7 @@
         <h1>Ensayo PAES</h1>
         <div class="user-info">
           <span>{{ userName }}</span>
+          <button @click="goToStats" class="stats-btn">Ver estadísticas</button>
           <button @click="logout" class="logout-btn">Cerrar Sesión</button>
         </div>
       </div>
@@ -23,7 +24,9 @@
           class="subject-card"
           @click="selectSubject(subject)"
         >
-          <div class="subject-icon" :class="subject.icon"></div>
+          <div class="subject-icon" :style="{ backgroundColor: subject.color }">
+            <component :is="subject.icon" :size="36" />
+          </div>
           <h3>{{ subject.name }}</h3>
           <p>{{ subject.description }}</p>
         </div>
@@ -35,37 +38,42 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { Sigma, BookText, FlaskConical, Landmark } from 'lucide-vue-next'
 
 const router = useRouter();
 const user = ref(null);
 
 const userName = computed(() => user.value?.name || 'Estudiante');
 
-// Datos de ejemplo para las asignaturas
+// Datos de ejemplo para las asignaturas con íconos lucide
 const subjects = ref([
   {
     id: 1,
     name: 'Matemáticas',
     description: 'Ensayo de matemáticas con preguntas de álgebra, geometría y estadística.',
-    icon: 'math-icon'
+    icon: Sigma,
+    color: '#3498db'
   },
   {
     id: 2,
     name: 'Lenguaje',
     description: 'Ensayo de comprensión lectora y análisis de textos.',
-    icon: 'language-icon'
+    icon: BookText,
+    color: '#e74c3c'
   },
   {
     id: 3,
     name: 'Ciencias',
     description: 'Ensayo de biología, química y física.',
-    icon: 'science-icon'
+    icon: FlaskConical,
+    color: '#2ecc71'
   },
   {
     id: 4,
     name: 'Historia',
     description: 'Ensayo de historia, geografía y ciencias sociales.',
-    icon: 'history-icon'
+    icon: Landmark,
+    color: '#f39c12'
   }
 ]);
 
@@ -87,6 +95,11 @@ const selectSubject = (subject) => {
   
   // Redirigir al ensayo
   router.push('/ensayo');
+};
+
+// Función para ver estadísticas
+const goToStats = () => {
+  router.push('/stats');
 };
 
 // Función para cerrar sesión
@@ -122,6 +135,19 @@ const logout = () => {
   display: flex;
   align-items: center;
   gap: 1rem;
+}
+
+.stats-btn {
+  background-color: #10b981;
+  border: none;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.stats-btn:hover {
+  background-color: #059669;
 }
 
 .logout-btn {
@@ -189,38 +215,6 @@ main {
   justify-content: center;
   font-size: 2rem;
   color: white;
-}
-
-.math-icon {
-  background-color: #3498db;
-}
-
-.math-icon::before {
-  content: "∑";
-}
-
-.language-icon {
-  background-color: #e74c3c;
-}
-
-.language-icon::before {
-  content: "A";
-}
-
-.science-icon {
-  background-color: #2ecc71;
-}
-
-.science-icon::before {
-  content: "⚗";
-}
-
-.history-icon {
-  background-color: #f39c12;
-}
-
-.history-icon::before {
-  content: "H";
 }
 
 .subject-card h3 {

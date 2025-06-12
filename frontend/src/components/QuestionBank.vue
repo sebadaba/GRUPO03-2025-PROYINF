@@ -1,31 +1,42 @@
 <template>
   <div class="question-bank">
     <main>
-      
       <div class="filter-bar">
-        <div class="filter-group">
+        <div class="filter-group relative">
           <label>Asignatura:</label>
-          <select v-model="selectedSubject">
-            <option value="">Todas</option>
-            <option value="Matemáticas">Matemáticas</option>
-            <option value="Lenguaje">Lenguaje</option>
-            <option value="Ciencias">Ciencias</option>
-            <option value="Historia">Historia</option>
-          </select>
+          <div class="select-wrapper">
+            <select v-model="selectedSubject">
+              <option value="">Todas</option>
+              <option value="Matemáticas">Matemáticas</option>
+              <option value="Lenguaje">Lenguaje</option>
+              <option value="Ciencias">Ciencias</option>
+              <option value="Historia">Historia</option>
+            </select>
+            <ChevronDown class="lucide-chevron-icon" :size="18" />
+          </div>
         </div>
-        
-        <div class="filter-group">
+
+        <div class="filter-group relative">
           <label>Dificultad:</label>
-          <select v-model="selectedDifficulty">
-            <option value="">Todas</option>
-            <option value="Fácil">Fácil</option>
-            <option value="Media">Media</option>
-            <option value="Difícil">Difícil</option>
-          </select>
+          <div class="select-wrapper">
+            <select v-model="selectedDifficulty">
+              <option value="">Todas</option>
+              <option value="Fácil">Fácil</option>
+              <option value="Media">Media</option>
+              <option value="Difícil">Difícil</option>
+            </select>
+            <ChevronDown class="lucide-chevron-icon" :size="18" />
+          </div>
         </div>
-        
-        <div class="search-group">
-          <input type="text" v-model="searchQuery" placeholder="Buscar pregunta...">
+
+        <div class="search-group relative">
+          <Search class="lucide-search-icon" :size="20" />
+          <input
+            type="text"
+            v-model="searchQuery"
+            placeholder="Buscar pregunta..."
+            class="with-lucide-icon"
+          >
         </div>
       </div>
 
@@ -43,20 +54,16 @@
         </template>
       </QuestionDisplay>
 
-
-      
       <!-- Modal para agregar/editar pregunta -->
       <div v-if="showQuestionModal" class="modal">
         <div class="modal-content">
           <h2>{{ isEditMode ? 'Editar Pregunta' : `Agregar Nueva Pregunta de ${teacherSubject}` }}</h2>
-          
           <form @submit.prevent="saveQuestion">
             <!-- Asignatura (solo lectura) -->
             <div class="form-group">
               <label>Asignatura:</label>
               <input type="text" :value="teacherSubject" disabled class="disabled-input">
             </div>
-            
             <div class="form-group">
               <label>Dificultad:</label>
               <select v-model="questionForm.difficulty" required>
@@ -65,25 +72,23 @@
                 <option value="Difícil">Difícil</option>
               </select>
             </div>
-            
             <div class="form-group">
               <label>Texto de la pregunta:</label>
               <textarea v-model="questionForm.text" rows="4" required></textarea>
             </div>
-            
             <div class="form-group">
               <label>Opciones:</label>
               <div v-for="(_, index) in 4" :key="index" class="option-input">
                 <span class="option-letter">{{ ['A', 'B', 'C', 'D'][index] }}</span>
-                <input 
-                  type="text" 
-                  v-model="questionForm.options[index]" 
+                <input
+                  type="text"
+                  v-model="questionForm.options[index]"
                   :placeholder="`Opción ${['A', 'B', 'C', 'D'][index]}`"
                   required
                 >
-                <input 
-                  type="radio" 
-                  :value="index" 
+                <input
+                  type="radio"
+                  :value="index"
                   v-model="questionForm.correctOption"
                   :id="'option-' + index"
                   required
@@ -91,7 +96,6 @@
                 <label :for="'option-' + index">Correcta</label>
               </div>
             </div>
-            
             <div class="modal-actions">
               <button type="submit" class="save-btn" :disabled="isLoading">
                 {{ isLoading ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Guardar') }}
@@ -110,7 +114,8 @@
 <script setup>
 import { ref, computed, onMounted, defineExpose } from 'vue';
 import { useRouter } from 'vue-router';
-import QuestionDisplay from './QuestionDisplay.vue'; // Importa el componente
+import QuestionDisplay from './QuestionDisplay.vue';
+import { Search, ChevronDown } from 'lucide-vue-next'
 
 const router = useRouter();
 const user = ref(null);
@@ -175,10 +180,10 @@ const filteredQuestions = computed(() => {
   return questions.value.filter(question => {
     const matchesSubject = selectedSubject.value ? question.subject === selectedSubject.value : true;
     const matchesDifficulty = selectedDifficulty.value ? question.difficulty === selectedDifficulty.value : true;
-    const matchesSearch = searchQuery.value 
-      ? question.text.toLowerCase().includes(searchQuery.value.toLowerCase()) 
+    const matchesSearch = searchQuery.value
+      ? question.text.toLowerCase().includes(searchQuery.value.toLowerCase())
       : true;
-    
+
     return matchesSubject && matchesDifficulty && matchesSearch;
   });
 });
@@ -198,12 +203,12 @@ const validateForm = () => {
     alert('Por favor ingresa el texto de la pregunta');
     return false;
   }
-  
+
   if (questionForm.value.options.some(option => !option.trim())) {
     alert('Por favor completa todas las opciones');
     return false;
   }
-  
+
   return true;
 };
 
@@ -220,16 +225,16 @@ const updateLocalStorage = (updatedQuestions) => {
 const loadQuestions = async () => {
   isLoading.value = true;
   error.value = null;
-  
+
   try {
     const storedQuestions = localStorage.getItem('questions');
     let allQuestions = storedQuestions ? JSON.parse(storedQuestions) : SAMPLE_QUESTIONS;
-    
+
     // Si no hay preguntas guardadas, usar las de ejemplo
     if (!storedQuestions) {
       updateLocalStorage(allQuestions);
     }
-    
+
     // Filtrar por asignatura del profesor si está definida
     if (user.value?.subject) {
       questions.value = allQuestions.filter(q => q.subject === user.value.subject);
@@ -246,13 +251,13 @@ const loadQuestions = async () => {
 
 const saveQuestion = async () => {
   if (!validateForm()) return;
-  
+
   isLoading.value = true;
-  
+
   try {
     const storedQuestions = localStorage.getItem('questions');
     const allQuestions = storedQuestions ? JSON.parse(storedQuestions) : [];
-    
+
     if (isEditMode.value) {
       // Actualizar pregunta existente
       const questionIndex = allQuestions.findIndex(q => q.id === editingQuestionId.value);
@@ -262,9 +267,9 @@ const saveQuestion = async () => {
           ...questionForm.value,
           subject: user.value.subject
         };
-        
+
         allQuestions[questionIndex] = updatedQuestion;
-        
+
         // Actualizar en la lista local
         const localIndex = questions.value.findIndex(q => q.id === editingQuestionId.value);
         if (localIndex !== -1) {
@@ -278,18 +283,18 @@ const saveQuestion = async () => {
         subject: user.value.subject,
         id: Date.now()
       };
-      
+
       allQuestions.push(newQuestion);
-      
+
       // Agregar a la lista local si coincide con la asignatura
       if (!user.value.subject || newQuestion.subject === user.value.subject) {
         questions.value.push(newQuestion);
       }
     }
-    
+
     updateLocalStorage(allQuestions);
     closeModal();
-    
+
   } catch (err) {
     console.error('Error al guardar pregunta:', err);
     alert('Error al guardar la pregunta. Por favor, intenta nuevamente.');
@@ -302,15 +307,15 @@ const deleteQuestion = async (id) => {
   if (!confirm('¿Estás seguro de que deseas eliminar esta pregunta?')) {
     return;
   }
-  
+
   isLoading.value = true;
-  
+
   try {
     const storedQuestions = localStorage.getItem('questions');
     if (storedQuestions) {
       const allQuestions = JSON.parse(storedQuestions);
       const updatedQuestions = allQuestions.filter(q => q.id !== id);
-      
+
       updateLocalStorage(updatedQuestions);
       questions.value = questions.value.filter(q => q.id !== id);
     }
@@ -333,14 +338,14 @@ const openAddModal = () => {
 const openEditModal = (question) => {
   isEditMode.value = true;
   editingQuestionId.value = question.id;
-  
+
   questionForm.value = {
     difficulty: question.difficulty,
     text: question.text,
     options: [...question.options],
     correctOption: question.correctOption
   };
-  
+
   showQuestionModal.value = true;
 };
 
@@ -363,13 +368,13 @@ onMounted(() => {
     router.push('/');
     return;
   }
-  
+
   const userData = JSON.parse(storedUser);
   if (userData.role !== 'teacher') {
     router.push('/');
     return;
   }
-  
+
   user.value = userData;
   loadQuestions();
 });
@@ -400,7 +405,7 @@ main {
   backdrop-filter: blur(10px);
   padding: 1.5rem;
   border-radius: 16px;
-  box-shadow: 
+  box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.1),
     0 2px 16px rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -408,7 +413,7 @@ main {
   align-items: end;
 }
 
-.filter-group, 
+.filter-group,
 .search-group {
   display: flex;
   flex-direction: column;
@@ -448,7 +453,7 @@ main {
 .search-group input:focus {
   border-color: #0ea5e9;
   background: white;
-  box-shadow: 
+  box-shadow:
     0 0 0 4px rgba(14, 165, 233, 0.15),
     0 4px 16px rgba(14, 165, 233, 0.2);
   transform: translateY(-2px);
@@ -486,7 +491,8 @@ main {
 }
 
 /* Estados de carga y error */
-.loading, .error {
+.loading,
+.error {
   text-align: center;
   padding: 3rem;
   background: rgba(255, 255, 255, 0.95);
@@ -660,7 +666,8 @@ main {
   gap: 1rem;
 }
 
-.edit-btn, .delete-btn {
+.edit-btn,
+.delete-btn {
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 12px;
@@ -671,7 +678,8 @@ main {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.edit-btn:disabled, .delete-btn:disabled {
+.edit-btn:disabled,
+.delete-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
@@ -727,8 +735,13 @@ main {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-content {
@@ -746,11 +759,12 @@ main {
 }
 
 @keyframes slideUp {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(30px);
   }
-  to { 
+
+  to {
     opacity: 1;
     transform: translateY(0);
   }
@@ -779,8 +793,8 @@ main {
   font-size: 0.95rem;
 }
 
-.form-group select, 
-.form-group textarea, 
+.form-group select,
+.form-group textarea,
 .form-group input[type="text"] {
   width: 100%;
   padding: 1rem;
@@ -837,7 +851,7 @@ main {
   margin: 0;
   width: 18px;
   height: 18px;
-  
+
 }
 
 .option-input label {
@@ -857,7 +871,8 @@ main {
   border-top: 1px solid rgba(229, 231, 235, 0.5);
 }
 
-.save-btn, .cancel-btn {
+.save-btn,
+.cancel-btn {
   padding: 1rem 2rem;
   border: none;
   border-radius: 12px;
@@ -868,7 +883,8 @@ main {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.save-btn:disabled, .cancel-btn:disabled {
+.save-btn:disabled,
+.cancel-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
@@ -900,12 +916,37 @@ main {
   cursor: not-allowed !important;
 }
 
+.relative { position: relative; }
+.select-wrapper { position: relative; }
+.lucide-search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  pointer-events: none;
+}
+.with-lucide-icon {
+  padding-left: 2.5rem !important;
+}
+.lucide-chevron-icon {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  pointer-events: none;
+}
+.select-wrapper select {
+  padding-right: 2.5rem !important;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   main {
     padding: 1.5rem;
   }
-  
+
   .question-options {
     grid-template-columns: 1fr;
   }
@@ -915,47 +956,47 @@ main {
   main {
     padding: 1rem;
   }
-  
+
   .filter-bar {
     flex-direction: column;
     gap: 1rem;
     padding: 1.25rem;
   }
-  
-  .filter-group, 
+
+  .filter-group,
   .search-group {
     min-width: 100%;
   }
-  
+
   .question-item {
     padding: 1.5rem;
   }
-  
+
   .question-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.75rem;
   }
-  
+
   .question-actions {
     justify-content: center;
     width: 100%;
   }
-  
+
   .modal {
     padding: 0.5rem;
   }
-  
+
   .modal-content {
     padding: 2rem;
     border-radius: 16px;
   }
-  
+
   .option-input {
     flex-wrap: wrap;
     gap: 0.5rem;
   }
-  
+
   .modal-actions {
     flex-direction: column;
   }
@@ -965,15 +1006,15 @@ main {
   main {
     padding: 0.75rem;
   }
-  
+
   .question-item {
     padding: 1.25rem;
   }
-  
+
   .modal-content {
     padding: 1.5rem;
   }
-  
+
   .filter-bar {
     padding: 1rem;
     border-radius: 12px;

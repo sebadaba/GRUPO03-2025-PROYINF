@@ -1,3 +1,5 @@
+<!-- no funciona arreglar  -->
+
 <template> 
   <div class="create-exam"> 
     <header class="main-header"> 
@@ -80,7 +82,7 @@
           
           <div v-if="selectionMethod === 'auto'" class="auto-selection">
             <p>El sistema seleccionará automáticamente {{ examConfig.questionCount }} preguntas 
-              de {{ examConfig.subject }} con dificultad {{ examConfig.difficulty.toLowerCase() }}.</p>
+              de {{ teacherSubject }} con dificultad {{ examConfig.difficulty.toLowerCase() }}.</p>
             
             <div v-if="availableQuestions.length > 0" class="question-count">
               <p>Preguntas disponibles: {{ availableQuestions.length }}</p>
@@ -251,6 +253,7 @@ const selectedQuestions = ref([]);
 
 // Preguntas disponibles según los criterios seleccionados
 const availableQuestions = computed(() => {
+  if (!user.value?.subject) return [];
   return questions.value.filter(q => 
     q.subject === user.value.subject && 
     (examConfig.value.difficulty === 'Mixta' || q.difficulty === examConfig.value.difficulty)
