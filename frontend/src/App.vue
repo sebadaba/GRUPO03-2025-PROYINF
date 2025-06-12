@@ -43,7 +43,15 @@ const logout = () => {
 }
 
 body {
-  font-family: Arial, sans-serif;
+  font-family:
+    'Inter',
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
   background-color: #f5f5f5;
 }
 

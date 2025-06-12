@@ -4,6 +4,7 @@ import LoginView from '../views/LoginView.vue'
 import HomePage from '../views/HomePage.vue'
 import TeacherDashboard from '../views/TeacherDashboard.vue'
 import EnsayoView from '../views/EnsayoView.vue'
+import CreateExam from '../views/CreateExam.vue'
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -30,6 +31,11 @@ const routes: Array<RouteRecordRaw> = [
         meta: {requireAuth: true, role: 'student'}
 
     },
+    {
+        path: '/create-ensayo',
+        name: 'create-ensayo',
+        component: CreateExam,
+    }
 
 ];
 const router = createRouter({
