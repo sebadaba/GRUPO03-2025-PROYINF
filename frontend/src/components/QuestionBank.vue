@@ -12,7 +12,7 @@
               <option value="Ciencias">Ciencias</option>
               <option value="Historia">Historia</option>
             </select>
-            <ChevronDown class="lucide-chevron-icon" :size="18" />
+            <ChevronDown class="lucide-chevron-icon" :size="20" />
           </div>
         </div>
 
@@ -25,7 +25,7 @@
               <option value="Media">Media</option>
               <option value="Difícil">Difícil</option>
             </select>
-            <ChevronDown class="lucide-chevron-icon" :size="18" />
+            <ChevronDown class="lucide-chevron-icon" :size="20" />
           </div>
         </div>
 
@@ -469,7 +469,6 @@ main {
 
 .search-group input {
   padding-left: 3rem;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z'/%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: 1rem center;
   background-size: 1.25rem 1.25rem;
@@ -482,12 +481,38 @@ main {
 
 .filter-group select {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-  background-position: right 1rem center;
   background-repeat: no-repeat;
   background-size: 1.25rem 1.25rem;
   padding-right: 3rem;
   cursor: pointer;
+}
+
+.select-wrapper {
+  position: relative;
+  width: 100%;
+  min-width: 160px;
+}
+
+.select-wrapper select {
+  width: 100%;
+  padding-right: 2.5rem !important; /* espacio para el icono */
+  background: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  box-sizing: border-box;
+}
+
+.lucide-chevron-icon {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  pointer-events: none;
+  z-index: 2;
+  height: 20px;
+  width: 20px;
 }
 
 /* Estados de carga y error */
@@ -936,6 +961,9 @@ main {
   transform: translateY(-50%);
   color: #6b7280;
   pointer-events: none;
+  z-index: 2;
+  height: 20px;
+  width: 20px;
 }
 .select-wrapper select {
   padding-right: 2.5rem !important;
