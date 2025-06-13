@@ -16,36 +16,28 @@ La presentación del cliente se puede revisar en el siguiente [enalce](https://a
 
 ## WIKI
 
-Puede acceder a la wiki desde el siguiente enlace [enlace](https://github.com/sebadaba/GRUPO03-2025-PROYINF/wiki)
+Puede acceder a la wiki desde el siguiente [enlace](https://github.com/sebadaba/GRUPO03-2025-PROYINF/wiki).
 
-## Instrucciones Backend
-
-1. Instalar Xampp y agregar path de PHP
-2. Instalar Composer
-3. Instalar PostgreSQL
-4. Dentro de la carpeta "backend" utilizar el siguiente comando en git bash:
-
-   - composer create-project laravel/laravel . --prefer-dist
-
-   Eso creará un proyecto laravel dentro de backend
-
-## Instrucciones frontend
+## Instrucciones
 
 ### Dependencias
 
-Para levantar este projecto se necesita:
-
-- Xampp (PHP)
-- Composer
-- PostgreSQL y pgAdmin 4
-- NodeJS
+- [Docker](https://www.docker.com/) (Recomendado)
 
 ### Ejecución
 
-- 1. Clonar el repositorio y navegar a la carpeta src/ a través de un terminal.
-- 2. Ejecutar 'npm install' para descargar los paquetes necesarios.
-- 3. Ejecutar 'npm run dev' para levantar la página de manera local en http://localhost:5173/ .
+1. Clonar el repositorio
+2. En la raíz del directorio, ejecutar `docker compose up -d`
+3. En un navegador web, ingresar a `localhost:5173`
 
----
+### Detener ejecución
+
+En el mismo directorio donde se ejecutó `docker compose`, ejecutar `docker compose down`.
+
+### Otras informaciones
+
+Si quiere realizar consultas directamente a las APIs del backend, estas se encuentran en la dirección `localhost:8000/api/...`
+
 ## Video demostracion:
+
 [CLICK AQUI](https://youtu.be/wvhAV7mzIEo)
