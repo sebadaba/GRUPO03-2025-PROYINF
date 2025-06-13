@@ -1,29 +1,40 @@
 <template>
-  <div class="historial-ensayos-page">
-    <!-- Botón Volver y Encabezado de Página -->
+  <div class="historial-container">
+    <!-- Header Mejorado -->
     <header class="page-header">
-      <button @click="goBack" class="back-btn">
-        <ArrowLeft :size="20" />
-        Volver
-      </button>
-      <h1>Historial de Ensayos Rendidos</h1>
-      <p>Revisa el detalle de todos tus ensayos completados.</p>
+      <div class="header-top">
+        <button @click="goBack" class="back-btn">
+          <ArrowLeft :size="16" />
+          Volver
+        </button>
+      </div>
+      <div class="header-content">
+        <h1>Historial de Ensayos</h1>
+      </div>
     </header>
 
     <!-- Sección de Filtros -->
     <div class="filtros-container">
-      <input type="text" placeholder="Buscar ensayo por nombre..." v-model="searchTerm" class="search-input" />
-      <select v-model="selectedSubject" class="filter-select">
-        <option value="">Todas las Asignaturas</option>
-        <option v-for="subject in uniqueSubjects" :key="subject" :value="subject">{{ subject }}</option>
-      </select>
-      <select v-model="sortBy" class="filter-select">
-        <option value="date_desc">Más Recientes</option>
-        <option value="date_asc">Más Antiguos</option>
-        <option value="score_desc">Mejor Puntaje</option>
-        <option value="score_asc">Menor Puntaje</option>
-      </select>
+      <SearchBar
+        v-model="searchTerm"
+        placeholder="Buscar ensayo..."
+        label=" " 
+      />
+      
+      <FilterSelect
+        v-model="selectedSubject"
+        :options="subjectOptions"
+        placeholder="Todas las asignaturas"
+        label="   Asignatura:"
+      />
+      
+      <FilterSelect
+        v-model="sortBy"
+        :options="sortOptions"
+        label="Ordenar por:"
+      />
     </div>
+
 
     <!-- Lista de Ensayos -->
     <div class="ensayos-list-container">
@@ -82,6 +93,8 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import Card from '../components/Card.vue';
+import SearchBar from '../components/common/SearchBar.vue';
+import FilterSelect from '../components/common/FilterSelect.vue';
 import { ArrowLeft, ChevronRight, TrendingUp, TrendingDown, BookText, Sigma, FlaskConical, Landmark, FileText as DefaultIcon } from 'lucide-vue-next';
 
 const router = useRouter();
@@ -124,6 +137,20 @@ const uniqueSubjects = computed(() => {
   return Array.from(subjects).sort();
 });
 
+const subjectOptions = computed(() => {
+  const options = [{ value: '', label: 'Todas las asignaturas' }];
+  uniqueSubjects.value.forEach(subject => {
+    options.push({ value: subject, label: subject });
+  });
+  return options;
+});
+
+const sortOptions = ref([
+  { value: 'date_desc', label: 'Más recientes' },
+  { value: 'date_asc', label: 'Más antiguos' },
+  { value: 'score_desc', label: 'Mayor puntaje' },
+  { value: 'score_asc', label: 'Menor puntaje' },
+]);
 // Mapeo de asignaturas a iconos y colores
 const subjectVisuals = {
   'Matemáticas': { icon: Sigma, color: '#3498db', bgColor: '#e1f5fe' },
@@ -136,7 +163,6 @@ const subjectVisuals = {
 const getSubjectIcon = (subjectName) => (subjectVisuals[subjectName] || subjectVisuals.Default).icon;
 const getSubjectColor = (subjectName) => (subjectVisuals[subjectName] || subjectVisuals.Default).color;
 const getSubjectBgColor = (subjectName) => (subjectVisuals[subjectName] || subjectVisuals.Default).bgColor;
-
 
 const filteredAndSortedEnsayos = computed(() => {
   if (!todosLosEnsayos.value) return [];
@@ -184,86 +210,74 @@ const formatDate = (dateString) => {
 };
 
 const goBack = () => router.back();
-//crear esto
+
 const verDetalleEnsayo = (ensayoId) => {
-  
   router.push({ name: 'DetalleEnsayo', params: { id: ensayoId } }); // Asumiendo que tienes una ruta nombrada 'DetalleEnsayo'
   console.log(`Ver detalles del ensayo ID: ${ensayoId}`);
 };
 </script>
 
 <style scoped>
-.historial-ensayos-page {
-  max-width: 900px;
-  margin: 2rem auto;
-  padding: 1.5rem;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: #374151;
+.historial-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
 }
 
 .page-header {
-  margin-bottom: 2.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid #e9ecef;
-  text-align: center;
-}
-
-.page-header h1 {
-  font-size: 2.25rem;
-  font-weight: 700;
-  color: #111827;
-  margin: 0 0 0.25rem 0;
-}
-
-.page-header p {
-  font-size: 1.125rem;
-  color: #6b7280;
-  margin-top: 0;
-}
-
-.back-btn {
-  background: #f0f4ff;
-  color: #3182ce;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: background-color 0.2s ease;
+  background-color: #fff;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   margin-bottom: 1.5rem;
 }
 
-.back-btn:hover {
-  background-color: #e6f3ff;
+.header-top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
 }
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  color: #2563eb;
+  background: none;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+}
+
+.back-btn:hover {
+  color: #1e40af;
+}
+
+.header-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.header-content h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin: 0;
+}
+
 
 .filtros-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  background-color: #fff;
+  border-radius: 1rem;
   padding: 1rem;
-  background-color: #f9fafb;
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
-}
-
-.search-input, .filter-select {
-  padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  font-size: 0.95rem;
-  background-color: white;
-  flex-grow: 1;
-}
-
-.filter-select {
-  min-width: 180px;
-  flex-grow: 0;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
+  display: flex; /* Cambiado de grid a flex */
+  flex-wrap: wrap; /* Permitir que los elementos se envuelvan en pantallas pequeñas */
+  gap: 1rem;
+  align-items: flex-end; /* Alinea los elementos en la parte inferior si tienen alturas diferentes */
+  margin-bottom: 1.5rem;
 }
 
 .ensayos-list-container {
@@ -287,28 +301,6 @@ const verDetalleEnsayo = (ensayoId) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.ensayo-info {
-  flex-grow: 1;
-}
-
-.ensayo-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.5rem;
-}
-
-.asignatura-label {
-  font-size: 0.8rem;
-  color: #4b5563;
-  background-color: #f3f4f6;
-  padding: 0.25rem 0.6rem;
-  border-radius: 0.375rem;
-  display: inline-block;
-  margin-bottom: 0.375rem;
-  font-weight: 500;
 }
 
 .fecha-label {
@@ -364,6 +356,7 @@ const verDetalleEnsayo = (ensayoId) => {
   background-color: #2563eb;
 }
 
+/* Paginación */
 .paginacion-container {
   display: flex;
   justify-content: center;
@@ -399,29 +392,12 @@ const verDetalleEnsayo = (ensayoId) => {
   font-size: 0.95rem;
 }
 
+/* Responsive */
 @media (max-width: 768px) {
-  .back-btn {
-    position: static;
-    margin-bottom: 1.5rem;
-    transform: none;
-  }
-  
-  .filtros-container {
-    flex-direction: column;
-  }
-  
-  .search-input, .filter-select {
-    width: 100%;
+  .historial-container {
+    padding: 1rem;
   }
 
-  .historial-item-details {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-  
-  .ensayo-puntaje {
-    align-items: flex-start;
-  }
+  /* display: flex y flex-wrap: wrap en .filtros-container manejarán el apilamiento automáticamente */
 }
 </style>

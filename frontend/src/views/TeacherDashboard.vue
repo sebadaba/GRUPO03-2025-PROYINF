@@ -20,7 +20,6 @@
         </button>
         <button 
           @click="openAddQuestion"
-          :class="{ active: activeTab === 'create' }"
         >
           Crear Pregunta
         </button>

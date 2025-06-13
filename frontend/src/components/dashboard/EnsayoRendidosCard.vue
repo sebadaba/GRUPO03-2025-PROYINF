@@ -1,7 +1,7 @@
 <template>
     <Card title="Ensayos Rendidos" subtitle="Progreso hacia tu meta" :icon="FileText" icon-background="#e6fffa"
-        icon-color="#00a693" grid-area="ensayos-rendidos" :expandable="true" @expanded="onExpanded"
-        @collapsed="onCollapsed">
+        icon-color="#00a693" grid-area="ensayos-rendidos" :expandable="true" @expand="handleExpand"
+        class="ensayos-card">
         <!-- Contenido principal -->
         <template #main-content>
             <div class="metric-value">{{ ensayosRendidos }}</div>
@@ -95,9 +95,14 @@
         <!-- Footer con acciones -->
         <template #footer-content>
             <div class="action-buttons">
-                <button class="action-btn secondary" @click="verHistorialCompleto">
+                <button 
+                    class="action-btn primary" 
+                    @click="verHistorialCompleto"
+                    @mouseenter="isHovered = true"
+                    @mouseleave="isHovered = false"
+                >
                     <History :size="16" />
-                    Ver historial
+                    <span>Ver historial completo</span>
                 </button>
             </div>
         </template>
@@ -106,6 +111,7 @@
 
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 import Card from '../Card.vue'
 import {
     FileText, Target, Calendar, Clock, CheckCircle, Zap,
@@ -183,12 +189,19 @@ const projectionChart = ref(null)
 const onCollapsed = () => {
     console.log('Tarjeta de ensayos colapsada')
 }
-const verHistorialCompleto = () => {
-    console.log('Mostrando historial completo...')
-    // Aquí iría la navegación al historial completo
+const router = useRouter()
+const isHovered = ref(false)
+const isExpanded = ref(false)
+
+const handleExpand = (expanded) => {
+    isExpanded.value = expanded
+    console.log('Card expanded:', expanded)
 }
 
-
+const verHistorialCompleto = (event) => {
+    event.stopPropagation() // Previene que el click se propague a la tarjeta
+    router.push('/historial')
+}
 </script>
 
 <style scoped>
@@ -442,23 +455,42 @@ const verHistorialCompleto = () => {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 16px;
+    padding: 12px 20px;
     border-radius: 8px;
     font-size: 0.9rem;
     font-weight: 500;
     border: none;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
 }
 
 .action-btn.primary {
-    background: #e2e8f0;
-    color: #4a5568;
+    background: #e6fffa;
+    color: #00a693;
+    border: 1px solid #b2f5ea;
 }
 
 .action-btn.primary:hover {
-    background: #cbd5e0;
+    background: #b2f5ea;
     transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 166, 147, 0.1);
+}
+
+/* Efecto de elevación en hover */
+.ensayos-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ensayos-card:hover:not(:has(.action-btn:hover)) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
+              0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Cuando el botón está en hover, la tarjeta vuelve a su estado normal */
+.ensayos-card:has(.action-btn:hover) {
+  transform: none;
+  box-shadow: none;
 }
 
 /* Utilidades */

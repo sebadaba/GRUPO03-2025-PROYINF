@@ -1,5 +1,3 @@
-<!-- no funciona arreglar  -->
-
 <template> 
   <div class="create-exam"> 
     <header class="main-header"> 
@@ -98,19 +96,17 @@
           
           <div v-if="selectionMethod === 'manual'" class="manual-selection">
             <div class="filter-bar">
-              <div class="filter-group">
-                <label>Filtrar por dificultad:</label>
-                <select v-model="questionFilter.difficulty">
-                  <option value="">Todas</option>
-                  <option value="Fácil">Fácil</option>
-                  <option value="Media">Media</option>
-                  <option value="Difícil">Difícil</option>
-                </select>
-              </div>
-              
-              <div class="search-group">
-                <input type="text" v-model="questionFilter.search" placeholder="Buscar pregunta...">
-              </div>
+              <FilterSelect
+                v-model="questionFilter.difficulty"
+                label="Filtrar por dificultad:"
+                placeholder="Todas"
+                :options="difficultyOptions"
+              />
+              <SearchBar
+                v-model="questionFilter.search"
+                placeholder="Buscar pregunta..."
+                label="Buscar pregunta:"
+              />
             </div>
             
             <div class="questions-container">
@@ -179,6 +175,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import FilterSelect from '../components/common/FilterSelect.vue';
+import SearchBar from '../components/common/SearchBar.vue';
 
 const router = useRouter();
 const user = ref(null);
@@ -250,6 +248,13 @@ const questions = ref([
 
 // Preguntas seleccionadas
 const selectedQuestions = ref([]);
+
+const difficultyOptions = ref([
+  { value: '', label: 'Todas' },
+  { value: 'Fácil', label: 'Fácil' },
+  { value: 'Media', label: 'Media' },
+  { value: 'Difícil', label: 'Difícil' }
+]);
 
 // Preguntas disponibles según los criterios seleccionados
 const availableQuestions = computed(() => {
@@ -557,20 +562,12 @@ h3 {
 .filter-bar {
   display: flex;
   gap: 1rem;
+  flex-wrap: wrap;
+  align-items: flex-end; /* Alinea los elementos si tienen etiquetas de diferente altura */
   margin-bottom: 1.5rem;
   background-color: #f9f9f9;
   padding: 1rem;
   border-radius: 8px;
-}
-
-.filter-group, .search-group {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.search-group {
-  flex-grow: 1;
 }
 
 .search-group input {
