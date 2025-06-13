@@ -6,7 +6,7 @@ import TeacherDashboard from '../views/TeacherDashboard.vue'
 import EnsayoView from '../views/EnsayoView.vue'
 import CreateExam from '../views/CreateExam.vue'
 import Dashboard from '../views/Dashboard.vue'
-
+import Historial from '../views/HistorialEnsayos.vue'
 const routes: Array<RouteRecordRaw> = [
     {
         path: '/',
@@ -42,6 +42,11 @@ const routes: Array<RouteRecordRaw> = [
         name: 'dashboard',
         component: Dashboard,
         
+    },
+    {
+        path:'/historial',
+        name: 'historial',
+        component: Historial,
     }
 
 ];
