@@ -24,7 +24,7 @@
           Crear Pregunta
         </button>
         <button 
-          @click="activeTab = 'tests'" 
+          @click="router.push('/create-ensayo')" 
           :class="{ active: activeTab === 'tests' }"
         >
           Ensayos
