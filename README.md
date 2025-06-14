@@ -18,6 +18,9 @@ La presentación del cliente se puede revisar en el siguiente [enalce](https://a
 
 Puede acceder a la wiki desde el siguiente [enlace](https://github.com/sebadaba/GRUPO03-2025-PROYINF/wiki).
 
+### De utilidad:
+Documentacion API gestion preguntas [aqui](https://github.com/sebadaba/GRUPO03-2025-PROYINF/wiki/API-GESTION-PREGUNTAS)
+
 ## Instrucciones
 
 ### Dependencias
