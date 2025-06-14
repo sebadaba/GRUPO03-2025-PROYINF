@@ -11,7 +11,16 @@ class PreguntaController extends Controller
     // POST /api/preguntas
     public function store(Request $request)
     {
-        return Pregunta::create($request->all());
+        $validated = $request->validate([
+            'enunciado' => 'required|string',
+            'alternativa_a' => 'required|string',
+            'alternativa_b' => 'required|string',
+            'alternativa_c' => 'required|string',
+            'alternativa_d' => 'required|string',
+            'correcta' => 'required|in:A,B,C,D',
+            'categoria_id' => 'required|exists:categoria_pregunta,id',
+        ]);
+        return Pregunta::create($validated);
     }
 
     // GET /api/preguntas

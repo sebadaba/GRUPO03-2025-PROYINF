@@ -5,10 +5,14 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AlumnoController;
 use App\Http\Controllers\PreguntaController;
+use App\Http\Controllers\CategoriaPreguntaController;
 
 Route::apiResource('alumnos', AlumnoController::class);
-Route::apiResource('preguntas', PreguntaController::class)->only(['index', 'show', 'update', 'destroy']);
-Route::post('/preguntas', [PreguntaController::class, 'store']);
+Route::apiResource('preguntas', PreguntaController::class);
+
+Route::get('categorias', function() {
+    return \App\Models\CategoriaPregunta::all();
+});
 
 # ignorar esto
 Route::get('/user', function (Request $request) {

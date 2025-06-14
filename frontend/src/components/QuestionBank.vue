@@ -116,6 +116,7 @@ import { ref, computed, onMounted, defineExpose } from 'vue';
 import { useRouter } from 'vue-router';
 import QuestionDisplay from './QuestionDisplay.vue';
 import { Search, ChevronDown } from 'lucide-vue-next'
+import axios from 'axios';
 
 const router = useRouter();
 const user = ref(null);
@@ -227,13 +228,9 @@ const loadQuestions = async () => {
   error.value = null;
 
   try {
-    const storedQuestions = localStorage.getItem('questions');
-    let allQuestions = storedQuestions ? JSON.parse(storedQuestions) : SAMPLE_QUESTIONS;
-
-    // Si no hay preguntas guardadas, usar las de ejemplo
-    if (!storedQuestions) {
-      updateLocalStorage(allQuestions);
-    }
+    // Obtener preguntas desde el backend
+    const response = await axios.get('http://localhost:8000/api/preguntas');
+    let allQuestions = response.data;
 
     // Filtrar por asignatura del profesor si está definida
     if (user.value?.subject) {
@@ -243,7 +240,7 @@ const loadQuestions = async () => {
     }
   } catch (err) {
     console.error('Error al cargar preguntas:', err);
-    error.value = 'Error al cargar las preguntas. Por favor, intenta nuevamente.';
+    error.value = 'Error al cargar las preguntas desde el backend. Por favor, intenta nuevamente.';
   } finally {
     isLoading.value = false;
   }
@@ -259,37 +256,51 @@ const saveQuestion = async () => {
     const allQuestions = storedQuestions ? JSON.parse(storedQuestions) : [];
 
     if (isEditMode.value) {
-      // Actualizar pregunta existente
-      const questionIndex = allQuestions.findIndex(q => q.id === editingQuestionId.value);
-      if (questionIndex !== -1) {
-        const updatedQuestion = {
-          ...allQuestions[questionIndex],
+      // Actualizar pregunta existente usando el backend
+      try {
+        const response = await axios.put(`http://localhost:8000/api/preguntas/${editingQuestionId.value}`, {
           ...questionForm.value,
           subject: user.value.subject
-        };
-
-        allQuestions[questionIndex] = updatedQuestion;
-
+        });
+        const updatedQuestion = response.data;
         // Actualizar en la lista local
         const localIndex = questions.value.findIndex(q => q.id === editingQuestionId.value);
         if (localIndex !== -1) {
           questions.value[localIndex] = updatedQuestion;
         }
+        closeModal();
+      } catch (apiErr) {
+        console.error('Error al actualizar pregunta en el backend:', apiErr);
+        alert('Error al actualizar la pregunta en el backend. Por favor, intenta nuevamente.');
       }
+      isLoading.value = false;
+      return;
     } else {
-      // Crear nueva pregunta
-      const newQuestion = {
-        ...questionForm.value,
-        subject: user.value.subject,
-        id: Date.now()
-      };
-
-      allQuestions.push(newQuestion);
-
-      // Agregar a la lista local si coincide con la asignatura
-      if (!user.value.subject || newQuestion.subject === user.value.subject) {
-        questions.value.push(newQuestion);
+      // Crear nueva pregunta usando el backend
+      try {
+        // Mapear el índice de la opción correcta a la letra correspondiente
+        const correctLetter = ['A', 'B', 'C', 'D'][questionForm.value.correctOption];
+        const payload = {
+          enunciado: questionForm.value.text,
+          alternativa_a: questionForm.value.options[0],
+          alternativa_b: questionForm.value.options[1],
+          alternativa_c: questionForm.value.options[2],
+          alternativa_d: questionForm.value.options[3],
+          correcta: correctLetter, // ahora es 'A', 'B', 'C' o 'D'
+          categoria_id: 2, // id de categoría corregido
+        };
+        const response = await axios.post('http://localhost:8000/api/preguntas', payload);
+        const createdQuestion = response.data;
+        if (!user.value.subject || createdQuestion.subject === user.value.subject) {
+          questions.value.push(createdQuestion);
+        }
+        closeModal();
+      } catch (apiErr) {
+        console.error('Error al guardar pregunta en el backend:', apiErr);
+        alert('Error al guardar la pregunta en el backend. Por favor, intenta nuevamente.');
       }
+      isLoading.value = false;
+      return;
     }
 
     updateLocalStorage(allQuestions);
@@ -311,17 +322,11 @@ const deleteQuestion = async (id) => {
   isLoading.value = true;
 
   try {
-    const storedQuestions = localStorage.getItem('questions');
-    if (storedQuestions) {
-      const allQuestions = JSON.parse(storedQuestions);
-      const updatedQuestions = allQuestions.filter(q => q.id !== id);
-
-      updateLocalStorage(updatedQuestions);
-      questions.value = questions.value.filter(q => q.id !== id);
-    }
+    await axios.delete(`http://localhost:8000/api/preguntas/${id}`);
+    questions.value = questions.value.filter(q => q.id !== id);
   } catch (err) {
-    console.error('Error al eliminar pregunta:', err);
-    alert('Error al eliminar la pregunta. Por favor, intenta nuevamente.');
+    console.error('Error al eliminar pregunta en el backend:', err);
+    alert('Error al eliminar la pregunta en el backend. Por favor, intenta nuevamente.');
   } finally {
     isLoading.value = false;
   }
