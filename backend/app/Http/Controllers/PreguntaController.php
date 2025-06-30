@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Pregunta;
-use App\Models\CategoriaPregunta;
+use Illuminate\Support\Facades\Validator;
 
 class PreguntaController extends Controller
 {
@@ -20,34 +20,80 @@ class PreguntaController extends Controller
             'correcta' => 'required|in:A,B,C,D',
             'categoria_id' => 'required|exists:categoria_pregunta,id',
         ]);
-        return Pregunta::create($validated);
+
+        $pregunta = Pregunta::create($validated);
+
+        return response()->json([
+            'message' => 'Pregunta creada exitosamente',
+            'data' => $pregunta
+        ], 201);
     }
 
     // GET /api/preguntas
     public function index()
     {
-        return Pregunta::all();
+        $preguntas = Pregunta::all();
+        return response()->json($preguntas, 200);
     }
 
     // GET /api/preguntas/{id}
     public function show($id)
     {
-        return Pregunta::findOrFail($id);
+        $pregunta = Pregunta::find($id);
+
+        if (!$pregunta) {
+            return response()->json([
+                'message' => 'Pregunta no encontrada'
+            ], 404);
+        }
+
+        return response()->json($pregunta, 200);
     }
 
     // PUT /api/preguntas/{id}
     public function update(Request $request, $id)
     {
-        $pregunta = Pregunta::findOrFail($id);
-        $pregunta->update($request->all());
-        return $pregunta;
+        $pregunta = Pregunta::find($id);
+
+        if (!$pregunta) {
+            return response()->json([
+                'message' => 'Pregunta no encontrada'
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'enunciado' => 'sometimes|required|string',
+            'alternativa_a' => 'sometimes|required|string',
+            'alternativa_b' => 'sometimes|required|string',
+            'alternativa_c' => 'sometimes|required|string',
+            'alternativa_d' => 'sometimes|required|string',
+            'correcta' => 'sometimes|required|in:A,B,C,D',
+            'categoria_id' => 'sometimes|required|exists:categoria_pregunta,id',
+        ]);
+
+        $pregunta->update($validated);
+
+        return response()->json([
+            'message' => 'Pregunta actualizada exitosamente',
+            'data' => $pregunta
+        ], 200);
     }
 
     // DELETE /api/preguntas/{id}
     public function destroy($id)
     {
-        $pregunta = Pregunta::findOrFail($id);
+        $pregunta = Pregunta::find($id);
+
+        if (!$pregunta) {
+            return response()->json([
+                'message' => 'Pregunta no encontrada'
+            ], 404);
+        }
+
         $pregunta->delete();
-        return response()->noContent();
+
+        return response()->json([
+            'message' => 'Pregunta eliminada exitosamente'
+        ], 204);
     }
 }

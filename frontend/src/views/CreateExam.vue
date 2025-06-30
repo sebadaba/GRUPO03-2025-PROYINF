@@ -1,5 +1,3 @@
-<!-- no funciona arreglar  -->
-
 <template> 
   <div class="create-exam"> 
     <header class="main-header"> 
@@ -32,13 +30,11 @@
         </div>
         
         <div class="form-group">
-          <label>Dificultad:</label>
-          <select v-model="examConfig.difficulty">
-            <option value="Fácil">Fácil</option>
-            <option value="Media">Media</option>
-            <option value="Difícil">Difícil</option>
-            <option value="Mixta">Mixta</option>
-          </select>
+          <FilterSelect
+            v-model="examConfig.difficulty"
+            label="Dificultad:"
+            :options="examDifficultyOptions"
+          />
         </div>
         
         <div class="form-group">
@@ -54,63 +50,24 @@
         
         <div class="form-group checkbox-group">
           <label class="checkbox-label">
-            <input type="checkbox" v-model="examConfig.randomOrder">
-            Mostrar preguntas en orden aleatorio
-          </label>
-        </div>
-        
-        <div class="form-group checkbox-group">
-          <label class="checkbox-label">
             <input type="checkbox" v-model="examConfig.showResults">
             Mostrar resultados al finalizar
           </label>
-        </div>
-        
-        <h3>Selección de Preguntas</h3>
-        
-        <div class="question-selection">
-          <div class="selection-method">
-            <label>
-              <input type="radio" v-model="selectionMethod" value="auto">
-              Selección automática
-            </label>
-            <label>
-              <input type="radio" v-model="selectionMethod" value="manual">
-              Selección manual
-            </label>
-          </div>
-          
-          <div v-if="selectionMethod === 'auto'" class="auto-selection">
-            <p>El sistema seleccionará automáticamente {{ examConfig.questionCount }} preguntas 
-              de {{ teacherSubject }} con dificultad {{ examConfig.difficulty.toLowerCase() }}.</p>
-            
-            <div v-if="availableQuestions.length > 0" class="question-count">
-              <p>Preguntas disponibles: {{ availableQuestions.length }}</p>
-            </div>
-            
-            <div v-else class="no-questions">
-              <p>No hay suficientes preguntas disponibles con los criterios seleccionados.</p>
-              <button @click="navigateTo('/question-bank')" class="action-btn">
-                Ir al Banco de Preguntas
-              </button>
-            </div>
-          </div>
-          
-          <div v-if="selectionMethod === 'manual'" class="manual-selection">
+        </div>        
+        <h3>Selección Manual de Preguntas</h3>
+        <div class="manual-selection">
             <div class="filter-bar">
-              <div class="filter-group">
-                <label>Filtrar por dificultad:</label>
-                <select v-model="questionFilter.difficulty">
-                  <option value="">Todas</option>
-                  <option value="Fácil">Fácil</option>
-                  <option value="Media">Media</option>
-                  <option value="Difícil">Difícil</option>
-                </select>
-              </div>
-              
-              <div class="search-group">
-                <input type="text" v-model="questionFilter.search" placeholder="Buscar pregunta...">
-              </div>
+              <FilterSelect
+                v-model="questionFilter.difficulty"
+                label="Filtrar por dificultad:"
+                placeholder="Todas"
+                :options="difficultyOptions"
+              />
+              <SearchBar
+                v-model="questionFilter.search"
+                placeholder="Buscar pregunta..."
+                label="Buscar pregunta:"
+              />
             </div>
             
             <div class="questions-container">
@@ -160,7 +117,6 @@
                 </div>
               </div>
             </div>
-          </div>
         </div>
         
         <div class="form-actions">
@@ -179,6 +135,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import FilterSelect from '../components/common/FilterSelect.vue';
+import SearchBar from '../components/common/SearchBar.vue';
 
 const router = useRouter();
 const user = ref(null);
@@ -191,12 +149,8 @@ const examConfig = ref({
   difficulty: 'Media',
   questionCount: 10,
   timeLimit: 30,
-  randomOrder: true,
   showResults: true
 });
-
-// Método de selección de preguntas
-const selectionMethod = ref('auto');
 
 // Filtros para selección manual
 const questionFilter = ref({
@@ -251,6 +205,20 @@ const questions = ref([
 // Preguntas seleccionadas
 const selectedQuestions = ref([]);
 
+const difficultyOptions = ref([
+  { value: '', label: 'Todas' },
+  { value: 'Fácil', label: 'Fácil' },
+  { value: 'Media', label: 'Media' },
+  { value: 'Difícil', label: 'Difícil' }
+]);
+
+const examDifficultyOptions = ref([
+  { value: 'Fácil', label: 'Fácil' },
+  { value: 'Media', label: 'Media' },
+  { value: 'Difícil', label: 'Difícil' },
+  { value: 'Mixta', label: 'Mixta' }
+]);
+
 // Preguntas disponibles según los criterios seleccionados
 const availableQuestions = computed(() => {
   if (!user.value?.subject) return [];
@@ -284,12 +252,7 @@ const filteredQuestions = computed(() => {
 // Validación del formulario
 const isFormValid = computed(() => {
   if (!examConfig.value.name) return false;
-  
-  if (selectionMethod.value === 'auto') {
-    return availableQuestions.value.length >= examConfig.value.questionCount;
-  } else {
-    return selectedQuestions.value.length === examConfig.value.questionCount;
-  }
+  return selectedQuestions.value.length === examConfig.value.questionCount && examConfig.value.questionCount > 0;
 });
 
 // Verificar si una pregunta está seleccionada
@@ -315,16 +278,7 @@ const removeQuestion = (question) => {
 
 // Guardar ensayo
 const saveExam = () => {
-  // Preparar las preguntas del ensayo
-  let examQuestions;
-  
-  if (selectionMethod.value === 'auto') {
-    // Seleccionar aleatoriamente las preguntas
-    const shuffled = [...availableQuestions.value].sort(() => 0.5 - Math.random());
-    examQuestions = shuffled.slice(0, examConfig.value.questionCount);
-  } else {
-    examQuestions = [...selectedQuestions.value];
-  }
+  const examQuestions = [...selectedQuestions.value];
   
   // Crear objeto de ensayo (agregando la asignatura del profesor)
   const exam = {
@@ -346,7 +300,7 @@ const saveExam = () => {
   router.push('/teacher');
 };
 
-onMounted(() => {
+onMounted(async () => { // Se marca como async para futuras llamadas a API
   // Verificar si hay un usuario en localStorage
   const storedUser = localStorage.getItem('user');
   if (!storedUser) {
@@ -370,13 +324,13 @@ onMounted(() => {
   
   user.value = userData;
   
-  // Cargar preguntas del localStorage si existen
-  const storedQuestions = localStorage.getItem('questions');
-  if (storedQuestions) {
-    // Filtrar solo las preguntas de la asignatura del profesor
-    const allQuestions = JSON.parse(storedQuestions);
-    questions.value = allQuestions.filter(q => q.subject === user.value.subject);
-  }
+  // Lógica actual de carga desde localStorage 
+    const storedQuestions = localStorage.getItem('questions');
+    if (storedQuestions) {
+      const allQuestions = JSON.parse(storedQuestions);
+      questions.value = allQuestions.filter(q => q.subject === user.value.subject);
+    }
+
 });
 
 const navigateTo = (route) => {
@@ -504,23 +458,6 @@ h3 {
   border-bottom: 1px solid #eee;
 }
 
-.question-selection {
-  margin-bottom: 2rem;
-}
-
-.selection-method {
-  display: flex;
-  gap: 2rem;
-  margin-bottom: 1.5rem;
-}
-
-.selection-method label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-}
-
 .auto-selection {
   background-color: #f9f9f9;
   padding: 1.5rem;
@@ -557,20 +494,12 @@ h3 {
 .filter-bar {
   display: flex;
   gap: 1rem;
+  flex-wrap: wrap;
+  align-items: flex-end; /* Alinea los elementos si tienen etiquetas de diferente altura */
   margin-bottom: 1.5rem;
   background-color: #f9f9f9;
   padding: 1rem;
   border-radius: 8px;
-}
-
-.filter-group, .search-group {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.search-group {
-  flex-grow: 1;
 }
 
 .search-group input {
@@ -707,5 +636,46 @@ h4 {
 .cancel-btn {
   background-color: #e74c3c;
   color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .questions-container {
+    grid-template-columns: 1fr; /* Stack columns */
+    gap: 1.5rem;
+  }
+
+  .available-questions, .selected-questions {
+    height: 350px; /* Adjust height for single column */
+  }
+}
+
+@media (max-width: 768px) {
+  .main-header {
+    padding: 1rem;
+  }
+  .header-content {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+  main {
+    padding: 1rem;
+  }
+  .exam-form {
+    padding: 1.5rem;
+  }
+  .form-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .save-btn, .cancel-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .exam-form { padding: 1rem; }
+  .form-group input[type="text"], .form-group input[type="number"] { padding: 0.7rem; }
 }
 </style>

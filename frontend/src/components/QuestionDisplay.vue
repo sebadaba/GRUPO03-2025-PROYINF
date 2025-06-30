@@ -39,9 +39,6 @@
           <!-- Indicador de selección -->
           <div v-if="selectedAnswers && selectedAnswers[question.id] === optionIndex" 
                class="selection-indicator">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-            </svg>
           </div>
         </div>
       </div>
@@ -60,9 +57,6 @@
     <!-- Estado vacío -->
     <div v-if="questions.length === 0" class="no-questions">
       <div class="empty-state">
-        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>
         <h3>No hay preguntas disponibles</h3>
         <p>{{ emptyMessage || 'No se encontraron preguntas para mostrar.' }}</p>
       </div>

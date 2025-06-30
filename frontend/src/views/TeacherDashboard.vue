@@ -20,12 +20,11 @@
         </button>
         <button 
           @click="openAddQuestion"
-          :class="{ active: activeTab === 'create' }"
         >
           Crear Pregunta
         </button>
         <button 
-          @click="activeTab = 'tests'" 
+          @click="router.push('/create-ensayo')" 
           :class="{ active: activeTab === 'tests' }"
         >
           Ensayos
@@ -52,7 +51,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import QuestionBank from '../components/QuestionBank.vue';
+import QuestionBank from '../views/QuestionBank.vue';
 
 const router = useRouter();
 const user = ref(null);
