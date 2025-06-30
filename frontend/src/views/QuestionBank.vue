@@ -103,11 +103,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, defineExpose } from 'vue';
-import { useRouter } from 'vue-router';
-import QuestionDisplay from './QuestionDisplay.vue';
-import FilterSelect from './common/FilterSelect.vue'
-import SearchBar from './common/SearchBar.vue'
+import { ref, computed, onMounted, defineExpose } from 'vue'
+import { useRouter } from 'vue-router'
+import QuestionDisplay from '../components/QuestionDisplay.vue'
+import FilterSelect from '../components/common/FilterSelect.vue'
+import SearchBar from '../components/common/SearchBar.vue'
+import GestionPreguntasService from '../services/GestionPreguntasService'
 
 const router = useRouter();
 const user = ref(null);
@@ -216,24 +217,32 @@ const loadQuestions = async () => {
   isLoading.value = true;
 
   try {
-    const storedQuestions = localStorage.getItem('questions');
-    let allQuestions = storedQuestions ? JSON.parse(storedQuestions) : SAMPLE_QUESTIONS;
+    const response = await GestionPreguntasService.obtenerPreguntas()
+    const CATEGORY_MAP = {
+      1: 'Matemáticas',
+      2: 'Lenguaje',
+      3: 'Ciencias',
+      4: 'Historia'
+    };
 
-    // Si no hay preguntas guardadas, usar las de ejemplo
-    if (!storedQuestions) {
-      updateLocalStorage(allQuestions);
-    }
-
-    // Filtrar por asignatura del profesor si está definida
-    if (user.value?.subject) {
-      questions.value = allQuestions.filter(q => q.subject === user.value.subject);
-    } else {
-      questions.value = allQuestions;
-    }
+    questions.value = response.map(pregunta => ({
+      id: pregunta.id,
+      subject: CATEGORY_MAP[pregunta.categoria_id] || 'Sin asignatura',
+      difficulty: pregunta.difficulty || 'Media',
+      text: pregunta.enunciado,
+      options: [
+        pregunta.alternativa_a,
+        pregunta.alternativa_b,
+        pregunta.alternativa_c,
+        pregunta.alternativa_d
+      ],
+      correctOption: ['A', 'B', 'C', 'D'].indexOf(pregunta.correcta)
+    }))
   } catch (err) {
-    console.error('Error al cargar preguntas:', err);
+    console.error('Error al cargar preguntas:', err)
+    // Mostrar mensaje de error al usuario
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
 };
 
@@ -243,49 +252,41 @@ const saveQuestion = async () => {
   isLoading.value = true;
 
   try {
-    const storedQuestions = localStorage.getItem('questions');
-    const allQuestions = storedQuestions ? JSON.parse(storedQuestions) : [];
-
-    if (isEditMode.value) {
-      // Actualizar pregunta existente
-      const questionIndex = allQuestions.findIndex(q => q.id === editingQuestionId.value);
-      if (questionIndex !== -1) {
-        const updatedQuestion = {
-          ...allQuestions[questionIndex],
-          ...questionForm.value,
-          subject: user.value.subject
-        };
-
-        allQuestions[questionIndex] = updatedQuestion;
-
-        // Actualizar en la lista local
-        const localIndex = questions.value.findIndex(q => q.id === editingQuestionId.value);
-        if (localIndex !== -1) {
-          questions.value[localIndex] = updatedQuestion;
-        }
-      }
-    } else {
-      // Crear nueva pregunta
-      const newQuestion = {
-        ...questionForm.value,
-        subject: user.value.subject,
-        id: Date.now()
-      };
-
-      allQuestions.push(newQuestion);
-
-      // Agregar a la lista local si coincide con la asignatura
-      if (!user.value.subject || newQuestion.subject === user.value.subject) {
-        questions.value.push(newQuestion);
-      }
+    // Validar que user.value.subjectId esté definido
+    if (!user.value?.subjectId) {
+      alert('Error: No se pudo determinar la asignatura del usuario.');
+      return;
     }
 
-    updateLocalStorage(allQuestions);
-    closeModal();
+    const preguntaData = {
+      enunciado: questionForm.value.text,
+      alternativa_a: questionForm.value.options[0],
+      alternativa_b: questionForm.value.options[1],
+      alternativa_c: questionForm.value.options[2],
+      alternativa_d: questionForm.value.options[3],
+      correcta: ['A', 'B', 'C', 'D'][questionForm.value.correctOption],
+      categoria_id: user.value.subjectId // Usar el ID numérico de la asignatura del usuario
+    };
 
+    // Log para inspeccionar el valor de categoria_id
+    console.log('categoria_id enviado:', preguntaData.categoria_id);
+
+    if (isEditMode.value) {
+      await GestionPreguntasService.actualizarPregunta(editingQuestionId.value, preguntaData);
+    } else {
+      await GestionPreguntasService.crearPregunta(preguntaData);
+    }
+
+    // Recargar preguntas después de guardar
+    await loadQuestions();
+    closeModal();
   } catch (err) {
     console.error('Error al guardar pregunta:', err);
-    alert('Error al guardar la pregunta. Por favor, intenta nuevamente.');
+    console.log('Detalles del error:', err.response?.data); // Log de detalles del error
+
+    // Mostrar mensaje de error al usuario
+    const errorMessage = err.response?.data?.message || 'Error desconocido al guardar la pregunta.';
+    alert(`Error: ${errorMessage}`);
   } finally {
     isLoading.value = false;
   }
@@ -293,25 +294,20 @@ const saveQuestion = async () => {
 
 const deleteQuestion = async (id) => {
   if (!confirm('¿Estás seguro de que deseas eliminar esta pregunta?')) {
-    return;
+    return
   }
 
-  isLoading.value = true;
+  isLoading.value = true
 
   try {
-    const storedQuestions = localStorage.getItem('questions');
-    if (storedQuestions) {
-      const allQuestions = JSON.parse(storedQuestions);
-      const updatedQuestions = allQuestions.filter(q => q.id !== id);
-
-      updateLocalStorage(updatedQuestions);
-      questions.value = questions.value.filter(q => q.id !== id);
-    }
+    await GestionPreguntasService.eliminarPregunta(id)
+    // Eliminar la pregunta del array local
+    questions.value = questions.value.filter(q => q.id !== id)
   } catch (err) {
-    console.error('Error al eliminar pregunta:', err);
-    alert('Error al eliminar la pregunta. Por favor, intenta nuevamente.');
+    console.error('Error al eliminar pregunta:', err)
+    alert('Error al eliminar la pregunta. Por favor, intenta nuevamente.')
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
 };
 
@@ -364,10 +360,14 @@ onMounted(() => {
   }
 
   user.value = userData;
+
+  // Mostrar subjectId en la consola
+  console.log('Subject ID:', user.value.subjectId);
+
   loadQuestions();
 });
 
-// Exposer funciones para el componente padre
+// Expose functions for routing
 defineExpose({ openAddQuestionForm });
 </script>
 

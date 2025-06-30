@@ -7,6 +7,7 @@ import EnsayoView from '../views/EnsayoView.vue'
 import CreateExam from '../views/CreateExam.vue'
 import Dashboard from '../views/Dashboard.vue'
 import Historial from '../views/HistorialEnsayos.vue'
+import QuestionBank from '../views/QuestionBank.vue';
 const routes: Array<RouteRecordRaw> = [
     {
         path: '/',
@@ -47,8 +48,12 @@ const routes: Array<RouteRecordRaw> = [
         path:'/historial',
         name: 'historial',
         component: Historial,
+    },
+    {
+        path: '/question-bank',
+        name: 'QuestionBank',
+        component: QuestionBank,
     }
-
 ];
 const router = createRouter({
     history: createWebHashHistory(),
