@@ -383,7 +383,7 @@ const deleteQuestion = async (id) => {
     await GestionPreguntasService.eliminarPregunta(id)
     // Eliminar la pregunta del array local
     questions.value = questions.value.filter(q => q.id !== id)
-  } catch (err) {
+  } catch (error) {
     console.error('Error al eliminar pregunta:', err)
     alert('Error al eliminar la pregunta. Por favor, intenta nuevamente.')
   } finally {
