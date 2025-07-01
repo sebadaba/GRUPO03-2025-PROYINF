@@ -132,24 +132,26 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, defineExpose } from 'vue'
-import { useRouter } from 'vue-router'
-import QuestionDisplay from '../components/QuestionDisplay.vue'
-import FilterSelect from '../components/common/FilterSelect.vue'
-import SearchBar from '../components/common/SearchBar.vue'
-import GestionPreguntasService from '../services/GestionPreguntasService'
+import { ref, computed, onMounted, defineExpose } from "vue";
+import { useRouter } from "vue-router";
+import QuestionDisplay from "../components/QuestionDisplay.vue";
+import FilterSelect from "../components/common/FilterSelect.vue";
+import SearchBar from "../components/common/SearchBar.vue";
+import GestionPreguntasService from "../services/GestionPreguntasService";
 
 const router = useRouter();
 const user = ref(null);
-const teacherSubject = computed(() => user.value?.subject || 'Sin asignatura asignada');
+const teacherSubject = computed(
+  () => user.value?.subject || "Sin asignatura asignada"
+);
 
 // Estados del componente
 const isLoading = ref(false);
 
 // Filtros
-const selectedSubject = ref('');
-const selectedDifficulty = ref('');
-const searchQuery = ref('');
+const selectedSubject = ref("");
+const selectedDifficulty = ref("");
+const searchQuery = ref("");
 
 // Modal y formulario
 const showQuestionModal = ref(false);
@@ -161,45 +163,54 @@ const questions = ref([]);
 
 // Formulario de pregunta
 const questionForm = ref({
-  difficulty: 'Media',
-  text: '',
-  options: ['', '', '', ''],
-  correctOption: 0
+  difficulty: "Media",
+  text: "",
+  options: ["", "", "", ""],
+  correctOption: 0,
 });
 
 // Preguntas de ejemplo
 const SAMPLE_QUESTIONS = [
   {
     id: 1,
-    subject: 'Matemáticas',
-    difficulty: 'Media',
-    text: '¿Cuál es la solución de la ecuación 2x + 5 = 15?',
-    options: ['x = 5', 'x = 10', 'x = 7.5', 'x = 6'],
-    correctOption: 0
+    subject: "Matemáticas",
+    difficulty: "Media",
+    text: "¿Cuál es la solución de la ecuación 2x + 5 = 15?",
+    options: ["x = 5", "x = 10", "x = 7.5", "x = 6"],
+    correctOption: 0,
   },
   {
     id: 2,
-    subject: 'Lenguaje',
-    difficulty: 'Fácil',
-    text: '¿Qué figura literaria se utiliza cuando se atribuyen características humanas a objetos inanimados?',
-    options: ['Metáfora', 'Personificación', 'Hipérbole', 'Símil'],
-    correctOption: 1
+    subject: "Lenguaje",
+    difficulty: "Fácil",
+    text: "¿Qué figura literaria se utiliza cuando se atribuyen características humanas a objetos inanimados?",
+    options: ["Metáfora", "Personificación", "Hipérbole", "Símil"],
+    correctOption: 1,
   },
   {
     id: 3,
-    subject: 'Ciencias',
-    difficulty: 'Difícil',
-    text: '¿Cuál de las siguientes NO es una función de las mitocondrias?',
-    options: ['Producción de ATP', 'Respiración celular', 'Síntesis de proteínas', 'Ciclo de Krebs'],
-    correctOption: 2
-  }
+    subject: "Ciencias",
+    difficulty: "Difícil",
+    text: "¿Cuál de las siguientes NO es una función de las mitocondrias?",
+    options: [
+      "Producción de ATP",
+      "Respiración celular",
+      "Síntesis de proteínas",
+      "Ciclo de Krebs",
+    ],
+    correctOption: 2,
+  },
 ];
 
 // Computed
 const filteredQuestions = computed(() => {
-  return questions.value.filter(question => {
-    const matchesSubject = selectedSubject.value ? question.subject === selectedSubject.value : true;
-    const matchesDifficulty = selectedDifficulty.value ? question.difficulty === selectedDifficulty.value : true;
+  return questions.value.filter((question) => {
+    const matchesSubject = selectedSubject.value
+      ? question.subject === selectedSubject.value
+      : true;
+    const matchesDifficulty = selectedDifficulty.value
+      ? question.difficulty === selectedDifficulty.value
+      : true;
     const matchesSearch = searchQuery.value
       ? question.text.toLowerCase().includes(searchQuery.value.toLowerCase())
       : true;
@@ -211,21 +222,21 @@ const filteredQuestions = computed(() => {
 // Funciones utilitarias
 const resetForm = () => {
   questionForm.value = {
-    difficulty: 'Media',
-    text: '',
-    options: ['', '', '', ''],
-    correctOption: 0
+    difficulty: "Media",
+    text: "",
+    options: ["", "", "", ""],
+    correctOption: 0,
   };
 };
 
 const validateForm = () => {
   if (!questionForm.value.text.trim()) {
-    alert('Por favor ingresa el texto de la pregunta');
+    alert("Por favor ingresa el texto de la pregunta");
     return false;
   }
 
-  if (questionForm.value.options.some(option => !option.trim())) {
-    alert('Por favor completa todas las opciones');
+  if (questionForm.value.options.some((option) => !option.trim())) {
+    alert("Por favor completa todas las opciones");
     return false;
   }
 
@@ -234,10 +245,10 @@ const validateForm = () => {
 
 const updateLocalStorage = (updatedQuestions) => {
   try {
-    localStorage.setItem('questions', JSON.stringify(updatedQuestions));
+    localStorage.setItem("questions", JSON.stringify(updatedQuestions));
   } catch (err) {
-    console.error('Error al guardar en localStorage:', err);
-    throw new Error('Error al guardar los datos');
+    console.error("Error al guardar en localStorage:", err);
+    throw new Error("Error al guardar los datos");
   }
 };
 
@@ -246,32 +257,32 @@ const loadQuestions = async () => {
   isLoading.value = true;
 
   try {
-    const response = await GestionPreguntasService.obtenerPreguntas()
+    const response = await GestionPreguntasService.obtenerPreguntas();
     const CATEGORY_MAP = {
-      1: 'Matemáticas',
-      2: 'Lenguaje',
-      3: 'Ciencias',
-      4: 'Historia'
+      1: "Matemáticas",
+      2: "Lenguaje",
+      3: "Ciencias",
+      4: "Historia",
     };
 
-    questions.value = response.map(pregunta => ({
+    questions.value = response.map((pregunta) => ({
       id: pregunta.id,
-      subject: CATEGORY_MAP[pregunta.categoria_id] || 'Sin asignatura',
-      difficulty: pregunta.difficulty || 'Media',
+      subject: CATEGORY_MAP[pregunta.categoria_id] || "Sin asignatura",
+      difficulty: pregunta.difficulty || "Media",
       text: pregunta.enunciado,
       options: [
         pregunta.alternativa_a,
         pregunta.alternativa_b,
         pregunta.alternativa_c,
-        pregunta.alternativa_d
+        pregunta.alternativa_d,
       ],
-      correctOption: ['A', 'B', 'C', 'D'].indexOf(pregunta.correcta)
-    }))
+      correctOption: ["A", "B", "C", "D"].indexOf(pregunta.correcta),
+    }));
   } catch (err) {
-    console.error('Error al cargar preguntas:', err)
+    console.error("Error al cargar preguntas:", err);
     // Mostrar mensaje de error al usuario
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
 };
 
@@ -281,26 +292,33 @@ const saveQuestion = async () => {
   isLoading.value = true;
 
   try {
-    const storedQuestions = localStorage.getItem('questions');
+    const storedQuestions = localStorage.getItem("questions");
     const allQuestions = storedQuestions ? JSON.parse(storedQuestions) : [];
 
     if (isEditMode.value) {
       // Actualizar pregunta existente usando el backend
       try {
-        const response = await axios.put(`http://localhost:8000/api/preguntas/${editingQuestionId.value}`, {
-          ...questionForm.value,
-          subject: user.value.subject
-        });
+        const response = await axios.put(
+          `http://localhost:8000/api/preguntas/${editingQuestionId.value}`,
+          {
+            ...questionForm.value,
+            subject: user.value.subject,
+          }
+        );
         const updatedQuestion = response.data;
         // Actualizar en la lista local
-        const localIndex = questions.value.findIndex(q => q.id === editingQuestionId.value);
+        const localIndex = questions.value.findIndex(
+          (q) => q.id === editingQuestionId.value
+        );
         if (localIndex !== -1) {
           questions.value[localIndex] = updatedQuestion;
         }
         closeModal();
       } catch (apiErr) {
-        console.error('Error al actualizar pregunta en el backend:', apiErr);
-        alert('Error al actualizar la pregunta en el backend. Por favor, intenta nuevamente.');
+        console.error("Error al actualizar pregunta en el backend:", apiErr);
+        alert(
+          "Error al actualizar la pregunta en el backend. Por favor, intenta nuevamente."
+        );
       }
       isLoading.value = false;
       return;
@@ -308,7 +326,9 @@ const saveQuestion = async () => {
       // Crear nueva pregunta usando el backend
       try {
         // Mapear el índice de la opción correcta a la letra correspondiente
-        const correctLetter = ['A', 'B', 'C', 'D'][questionForm.value.correctOption];
+        const correctLetter = ["A", "B", "C", "D"][
+          questionForm.value.correctOption
+        ];
         const payload = {
           enunciado: questionForm.value.text,
           alternativa_a: questionForm.value.options[0],
@@ -318,15 +338,23 @@ const saveQuestion = async () => {
           correcta: correctLetter, // ahora es 'A', 'B', 'C' o 'D'
           categoria_id: 2, // id de categoría corregido
         };
-        const response = await axios.post('http://localhost:8000/api/preguntas', payload);
+        const response = await axios.post(
+          "http://localhost:8000/api/preguntas",
+          payload
+        );
         const createdQuestion = response.data;
-        if (!user.value.subject || createdQuestion.subject === user.value.subject) {
+        if (
+          !user.value.subject ||
+          createdQuestion.subject === user.value.subject
+        ) {
           questions.value.push(createdQuestion);
         }
         closeModal();
       } catch (apiErr) {
-        console.error('Error al guardar pregunta en el backend:', apiErr);
-        alert('Error al guardar la pregunta en el backend. Por favor, intenta nuevamente.');
+        console.error("Error al guardar pregunta en el backend:", apiErr);
+        alert(
+          "Error al guardar la pregunta en el backend. Por favor, intenta nuevamente."
+        );
       }
       isLoading.value = false;
 
@@ -339,15 +367,18 @@ const saveQuestion = async () => {
       alternativa_b: questionForm.value.options[1],
       alternativa_c: questionForm.value.options[2],
       alternativa_d: questionForm.value.options[3],
-      correcta: ['A', 'B', 'C', 'D'][questionForm.value.correctOption],
-      categoria_id: user.value.subjectId // Usar el ID numérico de la asignatura del usuario
+      correcta: ["A", "B", "C", "D"][questionForm.value.correctOption],
+      categoria_id: user.value.subjectId, // Usar el ID numérico de la asignatura del usuario
     };
 
     // Log para inspeccionar el valor de categoria_id
-    console.log('categoria_id enviado:', preguntaData.categoria_id);
+    console.log("categoria_id enviado:", preguntaData.categoria_id);
 
     if (isEditMode.value) {
-      await GestionPreguntasService.actualizarPregunta(editingQuestionId.value, preguntaData);
+      await GestionPreguntasService.actualizarPregunta(
+        editingQuestionId.value,
+        preguntaData
+      );
     } else {
       await GestionPreguntasService.crearPregunta(preguntaData);
     }
@@ -356,11 +387,13 @@ const saveQuestion = async () => {
     await loadQuestions();
     closeModal();
   } catch (err) {
-    console.error('Error al guardar pregunta:', err);
-    console.log('Detalles del error:', err.response?.data); // Log de detalles del error
+    console.error("Error al guardar pregunta:", err);
+    console.log("Detalles del error:", err.response?.data); // Log de detalles del error
 
     // Mostrar mensaje de error al usuario
-    const errorMessage = err.response?.data?.message || 'Error desconocido al guardar la pregunta.';
+    const errorMessage =
+      err.response?.data?.message ||
+      "Error desconocido al guardar la pregunta.";
     alert(`Error: ${errorMessage}`);
   } finally {
     isLoading.value = false;
@@ -368,26 +401,28 @@ const saveQuestion = async () => {
 };
 
 const deleteQuestion = async (id) => {
-  if (!confirm('¿Estás seguro de que deseas eliminar esta pregunta?')) {
-    return
+  if (!confirm("¿Estás seguro de que deseas eliminar esta pregunta?")) {
+    return;
   }
 
-  isLoading.value = true
+  isLoading.value = true;
 
   try {
     await axios.delete(`http://localhost:8000/api/preguntas/${id}`);
-    questions.value = questions.value.filter(q => q.id !== id);
+    questions.value = questions.value.filter((q) => q.id !== id);
   } catch (err) {
-    console.error('Error al eliminar pregunta en el backend:', err);
-    alert('Error al eliminar la pregunta en el backend. Por favor, intenta nuevamente.');
-    await GestionPreguntasService.eliminarPregunta(id)
-    // Eliminar la pregunta del array local
-    questions.value = questions.value.filter(q => q.id !== id)
-  } catch (error) {
-    console.error('Error al eliminar pregunta:', err)
-    alert('Error al eliminar la pregunta. Por favor, intenta nuevamente.')
+    console.error("Error al eliminar pregunta:", err);
+
+    // Primero intenta con el servicio alternativo
+    try {
+      await GestionPreguntasService.eliminarPregunta(id);
+      questions.value = questions.value.filter((q) => q.id !== id);
+    } catch (secondErr) {
+      console.error("Error también con servicio alternativo:", secondErr);
+      alert("Error al eliminar la pregunta. Por favor, intenta nuevamente.");
+    }
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
 };
 
@@ -407,7 +442,7 @@ const openEditModal = (question) => {
     difficulty: question.difficulty,
     text: question.text,
     options: [...question.options],
-    correctOption: question.correctOption
+    correctOption: question.correctOption,
   };
 
   showQuestionModal.value = true;
@@ -427,22 +462,22 @@ const openAddQuestionForm = () => {
 
 // Ciclo de vida
 onMounted(() => {
-  const storedUser = localStorage.getItem('user');
+  const storedUser = localStorage.getItem("user");
   if (!storedUser) {
-    router.push('/');
+    router.push("/");
     return;
   }
 
   const userData = JSON.parse(storedUser);
-  if (userData.role !== 'teacher') {
-    router.push('/');
+  if (userData.role !== "teacher") {
+    router.push("/");
     return;
   }
 
   user.value = userData;
 
   // Mostrar subjectId en la consola
-  console.log('Subject ID:', user.value.subjectId);
+  console.log("Subject ID:", user.value.subjectId);
 
   loadQuestions();
 });
