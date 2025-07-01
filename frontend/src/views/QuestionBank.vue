@@ -10,7 +10,7 @@
             { value: 'Matemáticas', label: 'Matemáticas' },
             { value: 'Lenguaje', label: 'Lenguaje' },
             { value: 'Ciencias', label: 'Ciencias' },
-            { value: 'Historia', label: 'Historia' }
+            { value: 'Historia', label: 'Historia' },
           ]"
         />
 
@@ -21,14 +21,11 @@
           :options="[
             { value: 'Fácil', label: 'Fácil' },
             { value: 'Media', label: 'Media' },
-            { value: 'Difícil', label: 'Difícil' }
+            { value: 'Difícil', label: 'Difícil' },
           ]"
         />
 
-        <SearchBar
-          v-model="searchQuery"
-          placeholder="Buscar pregunta..."
-        />
+        <SearchBar v-model="searchQuery" placeholder="Buscar pregunta..." />
       </div>
 
       <!-- Lista de preguntas usando QuestionDisplay -->
@@ -40,20 +37,35 @@
         empty-message="No se encontraron preguntas con los filtros seleccionados."
       >
         <template #actions="{ question }">
-          <button @click="openEditModal(question)" class="edit-btn">Editar</button>
-          <button @click="deleteQuestion(question.id)" class="delete-btn">Eliminar</button>
+          <button @click="openEditModal(question)" class="edit-btn">
+            Editar
+          </button>
+          <button @click="deleteQuestion(question.id)" class="delete-btn">
+            Eliminar
+          </button>
         </template>
       </QuestionDisplay>
 
       <!-- Modal para agregar/editar pregunta -->
       <div v-if="showQuestionModal" class="modal">
         <div class="modal-content">
-          <h2>{{ isEditMode ? 'Editar Pregunta' : `Agregar Nueva Pregunta de ${teacherSubject}` }}</h2>
+          <h2>
+            {{
+              isEditMode
+                ? "Editar Pregunta"
+                : `Agregar Nueva Pregunta de ${teacherSubject}`
+            }}
+          </h2>
           <form @submit.prevent="saveQuestion">
             <!-- Asignatura (solo lectura) -->
             <div class="form-group">
               <label>Asignatura:</label>
-              <input type="text" :value="teacherSubject" disabled class="disabled-input">
+              <input
+                type="text"
+                :value="teacherSubject"
+                disabled
+                class="disabled-input"
+              />
             </div>
             <div class="form-group">
               <label>Dificultad:</label>
@@ -65,33 +77,50 @@
             </div>
             <div class="form-group">
               <label>Texto de la pregunta:</label>
-              <textarea v-model="questionForm.text" rows="4" required></textarea>
+              <textarea
+                v-model="questionForm.text"
+                rows="4"
+                required
+              ></textarea>
             </div>
             <div class="form-group">
               <label>Opciones:</label>
               <div v-for="(_, index) in 4" :key="index" class="option-input">
-                <span class="option-letter">{{ ['A', 'B', 'C', 'D'][index] }}</span>
+                <span class="option-letter">{{
+                  ["A", "B", "C", "D"][index]
+                }}</span>
                 <input
                   type="text"
                   v-model="questionForm.options[index]"
                   :placeholder="`Opción ${['A', 'B', 'C', 'D'][index]}`"
                   required
-                >
+                />
                 <input
                   type="radio"
                   :value="index"
                   v-model="questionForm.correctOption"
                   :id="'option-' + index"
                   required
-                >
+                />
                 <label :for="'option-' + index">Correcta</label>
               </div>
             </div>
             <div class="modal-actions">
               <button type="submit" class="save-btn" :disabled="isLoading">
-                {{ isLoading ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Guardar') }}
+                {{
+                  isLoading
+                    ? "Guardando..."
+                    : isEditMode
+                    ? "Actualizar"
+                    : "Guardar"
+                }}
               </button>
-              <button type="button" @click="closeModal" class="cancel-btn" :disabled="isLoading">
+              <button
+                type="button"
+                @click="closeModal"
+                class="cancel-btn"
+                :disabled="isLoading"
+              >
                 Cancelar
               </button>
             </div>
@@ -217,21 +246,6 @@ const loadQuestions = async () => {
   isLoading.value = true;
 
   try {
-<<<<<<< HEAD:frontend/src/components/QuestionBank.vue
-    // Obtener preguntas desde el backend
-    const response = await axios.get('http://localhost:8000/api/preguntas');
-    let allQuestions = response.data;
-
-    // Filtrar por asignatura del profesor si está definida
-    if (user.value?.subject) {
-      questions.value = allQuestions.filter(q => q.subject === user.value.subject);
-    } else {
-      questions.value = allQuestions;
-    }
-  } catch (err) {
-    console.error('Error al cargar preguntas:', err);
-    error.value = 'Error al cargar las preguntas desde el backend. Por favor, intenta nuevamente.';
-=======
     const response = await GestionPreguntasService.obtenerPreguntas()
     const CATEGORY_MAP = {
       1: 'Matemáticas',
@@ -256,7 +270,6 @@ const loadQuestions = async () => {
   } catch (err) {
     console.error('Error al cargar preguntas:', err)
     // Mostrar mensaje de error al usuario
->>>>>>> dev-bmatuss:frontend/src/views/QuestionBank.vue
   } finally {
     isLoading.value = false
   }
@@ -268,7 +281,6 @@ const saveQuestion = async () => {
   isLoading.value = true;
 
   try {
-<<<<<<< HEAD:frontend/src/components/QuestionBank.vue
     const storedQuestions = localStorage.getItem('questions');
     const allQuestions = storedQuestions ? JSON.parse(storedQuestions) : [];
 
@@ -317,11 +329,7 @@ const saveQuestion = async () => {
         alert('Error al guardar la pregunta en el backend. Por favor, intenta nuevamente.');
       }
       isLoading.value = false;
-=======
-    // Validar que user.value.subjectId esté definido
-    if (!user.value?.subjectId) {
-      alert('Error: No se pudo determinar la asignatura del usuario.');
->>>>>>> dev-bmatuss:frontend/src/views/QuestionBank.vue
+
       return;
     }
 
@@ -367,20 +375,17 @@ const deleteQuestion = async (id) => {
   isLoading.value = true
 
   try {
-<<<<<<< HEAD:frontend/src/components/QuestionBank.vue
     await axios.delete(`http://localhost:8000/api/preguntas/${id}`);
     questions.value = questions.value.filter(q => q.id !== id);
   } catch (err) {
     console.error('Error al eliminar pregunta en el backend:', err);
     alert('Error al eliminar la pregunta en el backend. Por favor, intenta nuevamente.');
-=======
     await GestionPreguntasService.eliminarPregunta(id)
     // Eliminar la pregunta del array local
     questions.value = questions.value.filter(q => q.id !== id)
   } catch (err) {
     console.error('Error al eliminar pregunta:', err)
     alert('Error al eliminar la pregunta. Por favor, intenta nuevamente.')
->>>>>>> dev-bmatuss:frontend/src/views/QuestionBank.vue
   } finally {
     isLoading.value = false
   }
@@ -465,9 +470,7 @@ main {
   backdrop-filter: blur(10px);
   padding: 1.5rem;
   border-radius: 16px;
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    0 2px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 0 2px 16px rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.2);
   flex-wrap: wrap;
   align-items: end;
@@ -517,7 +520,6 @@ main {
   transform: translateY(-2px);
   box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
 }
-
 
 .modal {
   position: fixed;
@@ -652,7 +654,6 @@ main {
   margin: 0;
   width: 18px;
   height: 18px;
-
 }
 
 .option-input label {
@@ -722,7 +723,6 @@ main {
   main {
     padding: 1.5rem;
   }
-
 }
 
 @media (max-width: 768px) {
